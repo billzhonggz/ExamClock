@@ -6,7 +6,7 @@ A simple clock and countdown page displays exam title and timeslot.
 
 * Bootstrap
 * Vue.js
-* Vue-timeago
+* Vue-countdown component by fengyuanchen.
 
 ## License
 

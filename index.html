@@ -48,7 +48,8 @@
 
     <!-- Vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue-timeago@5.0.0/dist/vue-timeago.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <script src="vue-countdown.min.js"></script>
 
 </head>
 
@@ -66,7 +67,9 @@
                         </div>
                         <div class="card-body">
                             <h1 class="display-3">
-                                <timeago :datetime="endTime" :auto-update="1"></timeago>
+                                <countdown :time="remainingTime" :interval="1000" tag="p">
+                                    <template slot-scope="props">{{ props.hours }} h {{ props.minutes }} m {{ props.seconds }} s</template>
+                                </countdown>
                             </h1>
                         </div>
                     </div>
@@ -132,47 +135,53 @@
 </html>
 
 <script>
-    Vue.use(VueTimeago, {
-        name: 'Timeago', // Component name, `Timeago` by default
-        locale: 'en' // Default locale
-    })
+    window.onload = function () {
+        Vue.component(VueCountdown.name, VueCountdown);
 
-    var app = new Vue({
-        el: '#app',
-        data: {
-            'examTitle': 'Test Exam',
-            'startTime': '00:00',
-            'endTimeInput': '00:00',
-            'currentTime': '',
-            'showInfo': true,
-            'showChangeBtn': false,
-            'showCloseBtn': true
-        },
-        methods: {
-            updateTime: function () {
-                this.currentTimeUpdateInterval = setInterval(function () {
-                    this.currentTime = new Date().toLocaleTimeString('en-us')
-                }.bind(this), 1000)
+        new Vue({
+            el: '#app',
+            data: function () {
+                var now = new Date()
+                return {
+                    'examTitle': 'Test Exam',
+                    'startTime': '00:00',
+                    'endTimeInput': '00:00',
+                    'currentTime': '',
+                    'showInfo': true,
+                    'showChangeBtn': false,
+                    'showCloseBtn': true,
+                    'counting': false
+                }
             },
-            showChangeExamInfo: function () {
-                this.showInfo = true;
-                this.showChangeBtn = false;
-                this.showCloseBtn = true;
+            methods: {
+                updateTime: function () {
+                    this.currentTimeUpdateInterval = setInterval(function () {
+                        this.currentTime = new Date().toLocaleTimeString('en-us')
+                    }.bind(this), 1000)
+                },
+                showChangeExamInfo: function () {
+                    this.showInfo = true;
+                    this.showChangeBtn = false;
+                    this.showCloseBtn = true;
+                },
+                closeChangeExamInfo: function () {
+                    this.showInfo = false;
+                    this.showChangeBtn = true;
+                    this.showCloseBtn = false;
+                }
             },
-            closeChangeExamInfo: function () {
-                this.showInfo = false;
-                this.showChangeBtn = true;
-                this.showCloseBtn = false;
+            mounted() {
+                this.updateTime()
+            },
+            computed: {
+                'endTime': function () {
+                    var endTimeObj = new Date(new Date().toDateString() + ' ' + this.endTimeInput)
+                    return endTimeObj
+                },
+                'remainingTime': function () {
+                    return this.endTime - new Date()
+                }
             }
-        },
-        mounted() {
-            this.updateTime()
-        },
-        computed: {
-            'endTime': function () {
-                var endTimeObj = new Date(new Date().toDateString() + ' ' + this.endTimeInput)
-                return endTimeObj
-            }
-        }
-    })
+        })
+    }
 </script>
